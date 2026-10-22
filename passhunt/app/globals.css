@@ -1,26 +1,116 @@
 @import "tailwindcss";
 
+/* Wariant `light:` – aktywny, gdy <html data-theme="light"> */
+@custom-variant light (&:where([data-theme=light], [data-theme=light] *));
+
+/* Motyw nocny (domyślny): czerń + seledyn */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #f2f5ea;
+  --surface: #0c0d0a;
+  --line: #1e2119;
+  --muted: #8b9180;
+  --accent: #d7ff3a; /* wypełnienia: przyciski, kropki, obramowania */
+  --accent-ink: #000000; /* tekst na tle accent */
+  --accent-text: #d7ff3a; /* tekst w kolorze akcentu */
+  --glow: #d7ff3a; /* poświata za kursorem */
+  --glow-strength: 20%;
+  --cursor-glow-strength: 14%;
+  --cursor-glow-blend: screen;
+  color-scheme: dark;
+}
+
+/* Motyw dzienny: biel + seledyn */
+:root[data-theme="light"] {
+  --background: #fbfcf7;
+  --foreground: #0a0b08;
+  --surface: #ffffff;
+  --line: #e3e6da;
+  --muted: #5d6354;
+  --accent: #d7ff3a;
+  --accent-ink: #000000;
+  --accent-text: #4f6b00; /* ciemniejszy seledyn – czytelny na białym */
+  --glow: #9fd000;
+  --glow-strength: 28%;
+  --cursor-glow-strength: 22%;
+  --cursor-glow-blend: multiply;
+  color-scheme: light;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-text: var(--accent-text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ---------- Poświata za kursorem (SpotlightGrid) ---------- */
+.spotlight {
+  background:
+    radial-gradient(
+      260px circle at var(--mx, -9999px) var(--my, -9999px),
+      var(--glow),
+      transparent 42%
+    ),
+    var(--line);
+}
+
+.spotlight-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    240px circle at var(--mx, -9999px) var(--my, -9999px),
+    color-mix(in oklab, var(--glow) var(--glow-strength), transparent),
+    transparent 60%
+  );
+}
+
+/* ---------- Globalna poświata za kursorem (CursorGlow) ---------- */
+.cursor-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  mix-blend-mode: var(--cursor-glow-blend);
+  background: radial-gradient(
+    200px circle at var(--cx, -9999px) var(--cy, -9999px),
+    color-mix(in oklab, var(--glow) var(--cursor-glow-strength), transparent),
+    transparent 70%
+  );
+}
+
+:root[data-cursor="on"] .cursor-glow {
+  opacity: 1;
 }
