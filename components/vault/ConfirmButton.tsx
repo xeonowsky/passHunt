@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-/** Dwuetapowe potwierdzenie bez okienek przeglądarki: „Usuń” → „Na pewno? Tak / Nie”. */
 export function ConfirmButton({
   label,
   question = "Na pewno?",
@@ -28,7 +27,11 @@ export function ConfirmButton({
   }
 
   return (
-    <span className="inline-flex items-center gap-2 text-sm" role="group" aria-label={question}>
+    <span
+      className="inline-flex items-center gap-2 text-sm"
+      role="group"
+      aria-label={question}
+    >
       <span className="text-red-500">{question}</span>
       <button
         type="button"
