@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { PasswordStrength } from "@/components/auth/PasswordStrength";
@@ -14,6 +15,7 @@ type Field = "email" | "password" | "confirm" | "hint" | "ack";
 type Errors = Partial<Record<Field, string>>;
 
 export function RegisterForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -45,14 +47,14 @@ export function RegisterForm() {
 
     setPending(true);
     const res = await registerAccount({
-      email: email.trim(),
+      email: email.trim().toLowerCase(),
       masterPassword: password,
       hint: hint.trim() || undefined,
     });
     setPending(false);
 
     if (res.ok) {
-      // TODO(E2): przekierowanie do /vault (lub konfiguracji 2FA)
+      router.push("/vault");
       return;
     }
     setNotice({ tone: AUTH_BACKEND_READY ? "error" : "info", text: res.error });

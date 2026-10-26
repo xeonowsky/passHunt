@@ -14,6 +14,9 @@ export function PasswordField({ label, error, children, labelAside, ...input }: 
   const id = useId();
   const errorId = `${id}-error`;
   const [visible, setVisible] = useState(false);
+  const [capsLock, setCapsLock] = useState(false);
+  const checkCaps = (e: React.KeyboardEvent<HTMLInputElement>) =>
+    setCapsLock(e.getModifierState?.("CapsLock") ?? false);
 
   return (
     <div>
@@ -36,6 +39,18 @@ export function PasswordField({ label, error, children, labelAside, ...input }: 
             error ? "border-red-500/70" : "border-line"
           }`}
           {...input}
+          onKeyDown={(e) => {
+            checkCaps(e);
+            input.onKeyDown?.(e);
+          }}
+          onKeyUp={(e) => {
+            checkCaps(e);
+            input.onKeyUp?.(e);
+          }}
+          onBlur={(e) => {
+            setCapsLock(false);
+            input.onBlur?.(e);
+          }}
         />
         <button
           type="button"
@@ -69,6 +84,14 @@ export function PasswordField({ label, error, children, labelAside, ...input }: 
           </svg>
         </button>
       </div>
+      {capsLock && (
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-500" role="status">
+          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 4 4 13h5v6h6v-6h5z" />
+          </svg>
+          Caps Lock jest włączony
+        </p>
+      )}
       {children}
       {error && (
         <p id={errorId} className="mt-2 text-sm text-red-500">

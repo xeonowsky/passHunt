@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { mainNav } from "@/lib/site";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { isLoggedInHint, subscribeSessionHint } from "@/lib/auth/session-hint";
 
 export function MainNav() {
   const pathname = usePathname();
+  const loggedIn = useSyncExternalStore(subscribeSessionHint, isLoggedInHint, () => false);
   // Menu jest otwarte tylko dla trasy, na której je otwarto –
   // po nawigacji zamyka się samo (bez setState w efekcie).
   const [openOn, setOpenOn] = useState<string | null>(null);
@@ -45,20 +47,33 @@ export function MainNav() {
 
       <div className="hidden items-center gap-3 md:flex">
         <ThemeToggle />
-        <Link
-          href="/login"
-          className={`rounded-md px-3 py-2 text-sm transition-colors hover:text-foreground ${
-            pathname === "/login" ? "text-foreground" : "text-muted"
-          }`}
-        >
-          Zaloguj się
-        </Link>
-        <Link
-          href="/register"
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink transition-opacity hover:opacity-90"
-        >
-          Załóż konto
-        </Link>
+        {loggedIn ? (
+          <Link
+            href="/account"
+            aria-current={pathname === "/account" ? "page" : undefined}
+            className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink transition-opacity hover:opacity-90"
+          >
+            <AccountIcon />
+            Moje konto
+          </Link>
+        ) : (
+          <>
+            <Link
+              href="/login"
+              className={`rounded-md px-3 py-2 text-sm transition-colors hover:text-foreground ${
+                pathname === "/login" ? "text-foreground" : "text-muted"
+              }`}
+            >
+              Zaloguj się
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink transition-opacity hover:opacity-90"
+            >
+              Załóż konto
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Mobile: motyw + menu */}
@@ -110,22 +125,46 @@ export function MainNav() {
               </li>
             ))}
           </ul>
-          <div className="mt-4 grid grid-cols-2 gap-3 border-t border-line pt-4">
-            <Link
-              href="/login"
-              className="rounded-md border border-line px-4 py-2.5 text-center text-sm text-foreground"
-            >
-              Zaloguj się
-            </Link>
-            <Link
-              href="/register"
-              className="rounded-md bg-accent px-4 py-2.5 text-center text-sm font-medium text-accent-ink"
-            >
-              Załóż konto
-            </Link>
-          </div>
+          {loggedIn ? (
+            <div className="mt-4 border-t border-line pt-4">
+              <Link
+                href="/account"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-md bg-accent px-4 py-2.5 text-center text-sm font-medium text-accent-ink"
+              >
+                <AccountIcon />
+                Moje konto
+              </Link>
+            </div>
+          ) : (
+            <div className="mt-4 grid grid-cols-2 gap-3 border-t border-line pt-4">
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="rounded-md border border-line px-4 py-2.5 text-center text-sm text-foreground"
+              >
+                Zaloguj się
+              </Link>
+              <Link
+                href="/register"
+                onClick={() => setOpen(false)}
+                className="rounded-md bg-accent px-4 py-2.5 text-center text-sm font-medium text-accent-ink"
+              >
+                Załóż konto
+              </Link>
+            </div>
+          )}
         </nav>
       </div>
     </>
+  );
+}
+
+function AccountIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
+    </svg>
   );
 }

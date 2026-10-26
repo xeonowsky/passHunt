@@ -6,9 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
+    "hash-wasm": "^4.12.0",
     "next": "16.4.2",
     "react": "19.3.0",
     "react-dom": "19.3.0"

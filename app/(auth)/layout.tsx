@@ -1,3 +1,5 @@
+import { RedirectIfLoggedIn } from "@/components/auth/RedirectIfLoggedIn";
+
 const points = [
   ["Hasło główne zostaje u Ciebie", "Klucz jest wyprowadzany w przeglądarce algorytmem Argon2id."],
   ["Serwer widzi tylko szyfrogram", "Wpisy są szyfrowane AES-256-GCM przed wysłaniem."],
@@ -7,6 +9,7 @@ const points = [
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <section className="relative flex flex-1 items-center overflow-hidden">
+      <RedirectIfLoggedIn />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-[0.6] [background-image:linear-gradient(var(--line)_1px,transparent_1px),linear-gradient(90deg,var(--line)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_70%)]"

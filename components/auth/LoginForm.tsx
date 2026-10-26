@@ -1,21 +1,30 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { TextField } from "@/components/auth/TextField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { FormNotice } from "@/components/auth/FormNotice";
-import { isValidEmail, login, AUTH_BACKEND_READY } from "@/lib/auth/client";
+import { isValidEmail, login, AUTH_BACKEND_READY, type LoginStage } from "@/lib/auth/client";
 
 type Errors = Partial<Record<"email" | "password", string>>;
 
+const STAGE_LABEL: Record<LoginStage, string> = {
+  kdf: "Wyprowadzanie klucza…",
+  server: "Logowanie…",
+  unlock: "Odblokowywanie sejfu…",
+};
+
 export function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Errors>({});
   const [notice, setNotice] = useState<{ tone: "error" | "info"; text: string } | null>(null);
   const [pending, setPending] = useState(false);
+  const [stage, setStage] = useState<LoginStage>("kdf");
   const [showRecoveryInfo, setShowRecoveryInfo] = useState(false);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -29,11 +38,11 @@ export function LoginForm() {
     if (Object.keys(next).length) return;
 
     setPending(true);
-    const res = await login({ email: email.trim(), masterPassword: password });
+    const res = await login({ email: email.trim().toLowerCase(), masterPassword: password }, setStage);
     setPending(false);
 
     if (res.ok) {
-      // TODO(E2): przekierowanie do /vault po odblokowaniu sejfu
+      router.push("/vault");
       return;
     }
     setNotice({ tone: AUTH_BACKEND_READY ? "error" : "info", text: res.error });
@@ -84,7 +93,7 @@ export function LoginForm() {
       </PasswordField>
 
       <SubmitButton pending={pending}>
-        {pending ? "Odblokowywanie…" : "Zaloguj się"}
+        {pending ? STAGE_LABEL[stage] : "Zaloguj się"}
       </SubmitButton>
 
       <p className="text-center text-sm text-muted">
